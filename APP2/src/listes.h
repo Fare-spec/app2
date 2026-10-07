@@ -2,6 +2,7 @@
 #define LISTES_H
 
 #include <stdbool.h>
+#include <stdio.h>
 
 /*
  * Pour réaliser des tests de performance, désactiver tous les 
@@ -33,14 +34,28 @@ extern bool silent_mode;
 struct cellule {
     char   command;
     /* vous pouvez rajouter d'autres champs ici */
-    struct cellule *suivant;
+    union {
+        struct cellule *suivant; /* french name */
+        struct cellule *next;    /* english name */
+    };
 };
 typedef struct cellule cellule_t;
+typedef struct cellule cell;
 
 struct sequence {
-    cellule_t *tete;
+    union {
+        cellule_t *tete; /* french name */
+        cellule_t *head; /* english name */
+    };
 };
 typedef struct sequence sequence_t;
+typedef struct sequence sq;
+
+
+cell* new_cell (void);
+void destroy_cell (cell*);
+void convert (char *text, sq *sequence);
+void display (sq *sequence);
 
 cellule_t* nouvelleCellule (void);
 
