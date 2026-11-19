@@ -57,13 +57,14 @@ void launch (bool debug, int carte_num)
 
         conversion(program,&prog_seq);
 
-        switch (interprete (&prog_seq, debug)) { //interprete le programme lu jusqu'a la fin de son execution 
+        int result = interprete(&prog_seq, debug);
+        if (!silent_mode) {
+            afficherCarte();
+        }
 
-            if (! silent_mode) {
-                afficherCarte();
-            }
+        switch (result) {
             case VICTOIRE:
-                if (mars.map[cY][cX] != TARGET) {
+                if (mars.map[curiosity.y][curiosity.x] != TARGET) {
                     printf ("*********************************************\n");
                     printf ("Curiosity n'est pas sur la cible !\n");
                     printf ("Pourquoi l'interprète crie-t-il victoire ?!?\n");
@@ -88,6 +89,9 @@ void launch (bool debug, int carte_num)
             case CIBLERATEE:
                 printf ("*********************************************\n");
                 printf ("Curiosity n'est pas sur la cible !\n");
+                printf ("*********************************************\n");
+                printf ("Échec sur la carte %d\n", mars.carte_num);
+                exit (EXIT_FAILURE);
             case RATE:
                 printf ("*********************************************\n");
                 printf ("Échec sur la carte %d\n", mars.carte_num);
@@ -96,6 +100,7 @@ void launch (bool debug, int carte_num)
                 printf ("Valeur de retour de l'interpréte inconnue\n");
                 exit (EXIT_FAILURE);
         }
+        clear_sequence(&prog_seq);
     }
 }
 
@@ -107,6 +112,7 @@ void read_test_file (char* fichier, bool debug)
 
     bool in_prog = true;
     int carte_num = -1;
+    size_t program_len = 0;
 
     if (f==NULL) {
         eprintf ("Impossible d'ouvrir %s en lecture.\n", fichier);
@@ -116,6 +122,7 @@ void read_test_file (char* fichier, bool debug)
 
 
     program[0] = '\0'; /* nouveau programme */
+    program_len = 0;
 
     while (! feof(f)) {
 
@@ -141,6 +148,7 @@ void read_test_file (char* fichier, bool debug)
             launch (debug, carte_num);
 
             program[0] = '\0'; /* nouveau programme */
+            program_len = 0;
             carte_num = -1;
             in_prog = true;
             continue;
@@ -163,8 +171,9 @@ void read_test_file (char* fichier, bool debug)
 
         if (in_prog) {
             /* ajout ligne au programme */
-            assert (strlen(program) + linesize < PROGSIZE);
-            strcat (program, line);
+            assert (program_len + (size_t)linesize < PROGSIZE);
+            memcpy(program + program_len, line, (size_t)linesize + 1);
+            program_len += (size_t)linesize;
         }
         else {
             /* ajout ligne à la carte */

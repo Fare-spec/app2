@@ -2,6 +2,7 @@
 #define CURIOSITY_H
 
 #include <stdbool.h>
+#include "robot.h"
 
 
 #define tailleCarte 255
@@ -27,9 +28,7 @@ struct carte
 };
 
 extern struct carte mars;
-
-extern unsigned int cX,cY; // Position de curiosity (cX,cY)
-extern int dX,dY;  // Direction de curiosity (dX,dY)=(1,0)|(-1,0)|(0,1)|(0,-1)
+extern Robot curiosity;
 
 void initCarte (int carte_num);
 void ajoutLigneCarte (char*);
